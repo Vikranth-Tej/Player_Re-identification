@@ -1,4 +1,0 @@
-**Download Model:**
-Object detection model link (for detecting players and the ball):
-https://drive.google.com/file/d/1-5fOSHOSB9UXYP enOoZNAMScrePVcMD/view
-Note: The model is a basic fine-tuned version of Ultralytics YOLOv11, trained specifically on player and ball detection.
