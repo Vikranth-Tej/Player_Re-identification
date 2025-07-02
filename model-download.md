@@ -2,7 +2,7 @@
 
 ## Model Download
 
-**Object Detection Model**  
+### Object Detection Model
 The YOLOv11 model used for detecting players and the ball is available at the following link:
 
 [Download YOLOv11 Player & Ball Detection Model](https://drive.google.com/file/d/1-5fOSHOSB9UXYPenOoZNAMScrePVcMD/view)
