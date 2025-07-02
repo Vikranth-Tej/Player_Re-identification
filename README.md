@@ -1,119 +1,160 @@
-# Single Feed Player Re-Identification System
+# ⚽ Single Feed Player Re-Identification System
 
-## 🎯 Objective
-Given a 15-second video (`15sec_input_720p.mp4`), identify each player and ensure that players who go out of frame and reappear are assigned the same identity as before.
+## Objective
 
-## 🚀 Key Features
+Given a 15-second video (`15sec_input_720p.mp4`), the goal is to identify each player and ensure that players who leave the frame and reappear are assigned the same identity as before.
 
-- **Advanced Player Detection**: Used pretrained YOLOv11 model fine-tuned for sports scenarios
-- **Real-time Re-identification**: Maintains consistent player IDs when players go out of frame and return
-- **Enhanced Feature Extraction**: 256-dimensional feature vectors combining color, texture, and geometric properties
-- **Temporal Consistency**: Sophisticated tracking algorithm with inactive player pool management
-- **Visual Enhancement**: Visualization with colored bounding boxes and player statistics
+---
 
-## 📋 Requirements
+## Key Features
 
-### System Requirements
-- Python 3.8
-- GPU support optional (CUDA-compatible for faster processing)
+- **Advanced Player Detection**: YOLOv11 model fine-tuned for sports-specific player detection.
+- **Real-Time Re-identification**: Maintains consistent player IDs across temporary disappearances.
+- **256-Dimensional Feature Vectors**: Combine color histograms, texture descriptors, and geometric properties.
+- **Temporal Consistency**: Player history maintained using active/inactive states and feature memory.
+- **Annotated Output**: Colored bounding boxes and player statistics rendered on output video.
 
-### Dependencies
-```bash
-pip install -r requirements.txt
-```
+---
 
-## 🎬 Usage
+## What This System Does
 
-### Quick Start
+- Processes a sports video (`15sec_input_720p.mp4`) from a single camera angle.
+- Detects players using a fine-tuned YOLOv11 model.
+- Extracts color, texture, and geometry-based features.
+- Re-identifies players who leave and re-enter the frame.
+- Outputs:
+  - `15sec_output_reidentified_720p.mp4` — video with player IDs and overlays.
+  - `15sec_output_reidentified_720p_results.json` — tracking data and statistics.
 
-1. **Place your video**: Name it `15sec_input_720p.mp4` in the project directory
+---
 
-2. **Run the system**:
-   ```bash
-   python single_feed_reid.py
-   ```
+## Setup & Execution
 
-3. **Output files**:
-   - `15sec_output_reidentified_720p.mp4` - Video with consistent player IDs
-   - `15sec_output_reidentified_720p_results.json` - Detailed tracking statistics
+### Prerequisites
 
+- **Python**: 3.8
+- **GPU**: Optional (CUDA-supported devices will improve performance)
+- **Input Format**: `.mp4`, 720p recommended
 
-## 🧠 Algorithm Overview
+### Install Dependencies
 
-### 1. Player Detection
-- **YOLOv11 Model**: Fine-tuned for sports player detection
-- **Confidence Filtering**: 0.3 threshold for optimal detection
-- **Size Validation**: Filters unrealistic detections
-
-### 2. Feature Extraction (256-dimensional)
-- **Color Features**: RGB + HSV histograms (144 features)
-- **Texture Features**: Patch-based statistical descriptors (64 features)
-- **Geometric Features**: Aspect ratio and normalized area (2 features)
-
-### 3. Player Tracking States
-- **Active Players**: Currently visible in frame
-- **Inactive Players**: Temporarily disappeared, available for re-identification
-- **Player History**: Complete tracking timeline
-
-### 4. Re-identification Logic
-- **Disappearance Tolerance**: 45 frames before moving to inactive
-- **Inactive Pool**: 150 frames retention for re-identification
-- **Similarity Matching**: Combined feature (70%) + spatial (30%) similarity
-- **Re-ID Threshold**: 0.75 confidence for successful re-identification
-
-## 5. Performance Metrics
-
-- **Total Detections**: Player detections across all frames
-- **Re-identifications**: Successful player re-identifications after disappearance
-- **ID Consistency**: Maintenance of consistent IDs throughout video
-- **Processing Speed**: Real-time processing (typically >20 fps)
-
-## 6. Model Information
-
-**YOLOv11 Model**: Fine-tuned for sports player and ball detection
-- **Auto-download**: From Google Drive link
-- **Model file**: `player_detection_model.pt`
-- **Classes**: Person (player) detection optimized
-
-##  Configuration Parameters
+If using Kaggle (where most packages are pre-installed), run:
 
 ```python
-max_disappeared = 45          # Frames before moving to inactive
-max_inactive_time = 150       # Frames before complete removal
-reid_similarity_threshold = 0.75  # Re-identification confidence
-confidence_threshold = 0.3    # Detection confidence threshold
-feature_history_size = 15     # Feature vector history length
-spatial_weight = 0.3         # Weight for spatial distance
-feature_weight = 0.7         # Weight for feature similarity
+pip install ultralytics==8.0.196 opencv-python==4.8.1.78 numpy==1.24.3 scipy==1.11.3 scikit-learn==1.3.0 torch==2.0.1 torchvision==0.15.2 
 ```
 
-##  Project Structure
+---
+
+### Running the System
+
+1. Place your input video in the root directory and rename it to:
+   ```
+   15sec_input_720p.mp4
+   ```
+
+2. Ensure the model weights file is named:
+   ```
+   best.pt
+   ```
+
+3. Open and execute the notebook:
+   ```
+   Player Re-identification.ipynb
+   ```
+
+4. Outputs will be generated as:
+   - `15sec_output_reidentified_720p.mp4`
+   - `15sec_output_reidentified_720p_results.json`
+
+---
+
+## Algorithm Overview
+
+### 1. Player Detection
+- **Model**: YOLOv11 (`best.pt`)
+- **Thresholds**:
+  - Confidence: 0.3
+  - Size filters for bounding boxes
+
+### 2. Feature Extraction (256-Dimensional)
+- **Color Features**: RGB + HSV histograms (144 dimensions)
+- **Texture Features**: Patch-level statistical descriptors (64 dimensions)
+- **Geometric Features**: Aspect ratio and area normalization (2 dimensions)
+
+### 3. Player Tracking States
+- **Active**: Currently visible in frame
+- **Inactive**: Disappeared recently but still eligible for re-identification
+- **History Buffer**: Maintains last N feature vectors for robust re-matching
+
+### 4. Re-identification Logic
+- **Disappearance Tolerance**: 45 frames
+- **Inactive Retention**: 150 frames
+- **Similarity Matching**: Weighted (70% feature + 30% spatial)
+- **Re-ID Threshold**: 0.75 for confirming re-identification
+
+---
+
+## Configuration Parameters
+
+```python
+max_disappeared = 45
+max_inactive_time = 150
+reid_similarity_threshold = 0.75
+confidence_threshold = 0.3
+feature_history_size = 15
+spatial_weight = 0.3
+feature_weight = 0.7
+```
+
+---
+
+## Performance Metrics
+
+| Metric              | Description                                    |
+|---------------------|------------------------------------------------|
+| Total Detections    | Number of players detected across all frames  |
+| Re-identifications  | Players successfully matched after reappearance |
+| ID Consistency      | Stability of ID assignment over time          |
+| Processing Speed    | ~10–20 seconds for 15s clip (CPU), real-time on GPU |
+
+---
+
+## Known Limitations
+
+- Player identities may **drift or reset** during occlusions.
+- **Appearance-based features** are sometimes insufficient for similar-looking players.
+- **Bounding box jitter** affects tracking stability.
+
+---
+
+## Recommendations for Future Work
+
+- Train a custom **ReID model** on sports datasets.
+- Integrate **pose estimation** and **temporal smoothing** for ID correction.
+- Implement a **memory bank** to retain embeddings over longer windows.
+- Tune parameters with longer and more diverse input videos.
+
+---
+
+## Project Structure
 
 ```
-├── single_feed_reid.py          # Main re-identification system
-├── requirements.txt             # Python dependencies
-├── README.md                   # This documentation
-├── 15sec_input_720p.mp4        # Your input video (place here)
-└── best.pt    # Auto-downloaded model
+project-root/
+├── 15sec_input_720p.mp4              # Input sports video (15 seconds)
+├── best.pt                           # YOLOv11 model weights
+├── Player Re-identification.ipynb    # Jupyter notebook implementation
+├── README.md                         # System documentation (this file)
+└── report.md                         # Technical report on methodology and results
 ```
 
-##  Expected Results
+---
 
-- **Consistent Player IDs**: Same player maintains same ID throughout video
-- **Successful Re-identification**: Players who leave frame and return get same ID
-- **Robust Tracking**: Handles occlusions and temporary disappearances
-- **Real-time Performance**: Processes 15-second video in ~10-20 seconds
+## Final Notes
 
+This is a working prototype of a single-camera sports Re-ID system. While partial success has been achieved in tracking and re-identification, **accurate and consistent identity retention remains a challenge**. The project lays the groundwork for further development and real-world deployment in sports analytics.
 
-##  Getting Started
-
-1. **Install dependencies**: `pip install -r requirements.txt`
-2. **Place your video**: Name: `15sec_input_720p.mp4`
-3. **Run system**: `python single_feed_reid.py`
-4. **Check output**: `15sec_output_reidentified_720p.mp4`
-
-The system is specifically designed for dynamic sports scenarios where players frequently move in and out of frame.
-
+---
 
 **Input**: `15sec_input_720p.mp4`  
-**Output**: `15sec_output_reidentified_720p.mp4`
+**Output**: `15sec_output_reidentified_720p.mp4`, `15sec_output_reidentified_720p_results.json`
